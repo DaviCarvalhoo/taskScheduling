@@ -1,23 +1,33 @@
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using taskScheduling.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers(); // Adiciona suporte a controllers tradicionais
+builder.Services.AddDbContext<OrganizadorContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConexaoPadrao")));
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); // Adiciona suporte para documentação Swagger/OpenAPI
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(); // Habilita Swagger no ambiente de desenvolvimento
-    app.UseSwaggerUI(); // Habilita a interface do Swagger UI
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection(); // Redireciona requisições HTTP para HTTPS
+app.UseHttpsRedirection();
 
-app.UseAuthorization(); // Habilita a autorização (se necessário)
+app.UseAuthorization();
 
-app.MapControllers(); // Mapeia os controllers automaticamente
+app.MapControllers();
 
 app.Run();
